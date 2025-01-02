@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Players</title>
+</head>
+<body>
+    <h1>Add New Players</h1>
+
+    {% if success %}
+        <p style="color: green;">Players added successfully:</p>
+        <ul>
+            {% for player in added_players %}
+                <li>{{ player }}</li>
+            {% endfor %}
+        </ul>
+        <a href="{{ url_for('team_input') }}">Go back to Team Input</a>
+    {% elif error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+
+    <form method="POST">
+        <label for="players">Enter players (comma-separated):</label><br>
+        <textarea id="players" name="players" rows="4" cols="50" placeholder="e.g., Player1, Player2, Player3"></textarea><br><br>
+        <button type="submit">Add Players</button>
+    </form>
+
+    <a href="{{ url_for('team_input') }}">Go back to Team Input</a>
+</body>
+</html>

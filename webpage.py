@@ -31,6 +31,25 @@ def login():
             return render_template('login.html', error="Invalid credentials")
     return render_template('login.html')
 
+@app.route('/add_players', methods=['GET', 'POST'])
+def add_players():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        player_list = request.form.get('players', '')
+
+        if player_list:
+            players = [player.strip() for player in player_list.split(',') if player.strip()]
+            for player in players:
+                rankings.add_player(player, 1000)  # Add each player with a default ranking of 1000
+            rankings.save_ratings('elo_calc/player_ratings.csv')  # Save updated ratings
+            return render_template('add_players.html', success=True, added_players=players)
+
+        return render_template('add_players.html', error="No players entered. Please try again.")
+
+    return render_template('add_players.html')
+
 @app.route('/team_input', methods=['GET', 'POST'])
 def team_input():
     if not session.get('logged_in'):

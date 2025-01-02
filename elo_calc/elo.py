@@ -10,6 +10,10 @@ class EloRatingSystem:
         self.player_ratings = defaultdict(lambda: self.initial_rating)
         self.game_results = []
 
+    def add_player(self, player_name, rating=1000):
+        if player_name not in self.player_ratings:
+            self.player_ratings[player_name] = rating
+
     def load_initial_ratings(self, ratings_file):
         """Load initial player ratings from a CSV file."""
         ratings_df = pd.read_csv(ratings_file, index_col=0)
