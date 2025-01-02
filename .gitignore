@@ -1,1 +1,3 @@
-~$elo.xlsx
+/elo_calc/game_results.csv
+/elo_calc/player_ratings.csv
+/elo_calc/__pycache/

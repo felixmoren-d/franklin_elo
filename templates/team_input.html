@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Team Input</title>
+    <style>
+        .team-box, .player-list {
+            border: 1px solid black;
+            padding: 10px;
+            min-height: 100px;
+            width: 300px;
+            display: inline-block;
+            vertical-align: top;
+            margin-right: 20px;
+        }
+        .player {
+            margin: 5px 0;
+        }
+        .button {
+            margin-left: 5px;
+            cursor: pointer;
+        }
+        .game-container {
+            margin-bottom: 30px;
+        }
+    </style>
+    <script>
+        let gameCounter = 1;
+
+        // Add a new game section
+        // Add a new game section
+let teamCounter = 2; // Start after "Team 2"
+
+// Add a new game section
+function addGame() {
+    const gamesContainer = document.getElementById('games-container');
+    gameCounter++;
+    teamCounter += 2; // Increment by 2 for each new game
+
+    const gameDiv = document.createElement('div');
+    gameDiv.id = `game-${gameCounter}`;
+    gameDiv.className = 'game-container';
+    gameDiv.innerHTML = `
+        <h3>Game ${gameCounter}</h3>
+        <div class="team-box" id="team${teamCounter - 1}-box-game${gameCounter}">
+            <h4>Team ${teamCounter - 1}</h4>
+        </div>
+        <div class="team-box" id="team${teamCounter}-box-game${gameCounter}">
+            <h4>Team ${teamCounter}</h4>
+        </div>
+        <div>
+            <label>Team ${teamCounter - 1} Score: <input type="number" name="team${teamCounter - 1}_score" required></label>
+            <label>Team ${teamCounter} Score: <input type="number" name="team${teamCounter}_score" required></label>
+        </div>
+        <h2>Available Players</h2>
+        <div class="player-list" id="player-list-game${gameCounter}">
+            {% for player, rating in player_rankings.items() %}
+            <div class="player" id="player-${gameCounter}-{{ loop.index }}">
+                {{ player }} ({{ rating }})
+                <div class="add-buttons">
+                    <button class="button" type="button" onclick="addToTeam('game${gameCounter}', 'team${teamCounter - 1}', 'player-${gameCounter}-{{ loop.index }}')">Add to Team ${teamCounter - 1}</button>
+                    <button class="button" type="button" onclick="addToTeam('game${gameCounter}', 'team${teamCounter}', 'player-${gameCounter}-{{ loop.index }}')">Add to Team ${teamCounter}</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    `;
+    gamesContainer.appendChild(gameDiv);
+}
+
+
+
+// Add player to a team
+function addToTeam(gameId, team, playerId) {
+    const teamBox = document.getElementById(`${team}-box-${gameId}`);
+    const player = document.getElementById(playerId);
+
+    if (player) {
+        const clonedPlayer = player.cloneNode(true);
+        clonedPlayer.id = `in-${gameId}-${team}-${playerId}`;
+        clonedPlayer.querySelector('.add-buttons').innerHTML = `
+            <button class="button" type="button" onclick="removeFromTeam('${gameId}', '${team}', '${playerId}')">Remove</button>`;
+        teamBox.appendChild(clonedPlayer);
+        player.remove();
+    }
+}
+
+// Remove player from a team
+
+
+
+        // Add player to a team
+        function addToTeam(gameId, team, playerId) {
+    const teamBox = document.getElementById(`${team}-box-${gameId}`);
+    const player = document.getElementById(playerId);
+
+    if (player) {
+        const clonedPlayer = player.cloneNode(true);
+        clonedPlayer.id = `in-${gameId}-${team}-${playerId}`;
+        clonedPlayer.querySelector('.add-buttons').innerHTML = `
+            <button class="button" type="button" onclick="removeFromTeam('${gameId}', '${team}', '${playerId}')">Remove</button>`;
+        teamBox.appendChild(clonedPlayer);
+        player.remove();
+    }
+}
+
+function removeFromTeam(gameId, team, playerId) {
+    const player = document.getElementById(`in-${gameId}-${team}-${playerId}`);
+    console.log(`${gameId}`)
+    const playerList = document.getElementById(`player-list-${gameId}`);
+
+    if (player) {
+        const clonedPlayer = player.cloneNode(true);
+        clonedPlayer.id = playerId;
+        clonedPlayer.querySelector('.add-buttons').innerHTML = `
+            <button class="button" type="button" onclick="addToTeam('${gameId}', 'team1', '${playerId}')">Add to Team 1</button>
+            <button class="button" type="button" onclick="addToTeam('${gameId}', 'team2', '${playerId}')">Add to Team 2</button>`;
+        playerList.appendChild(clonedPlayer);
+        player.remove();
+    }
+}
+
+    </script>
+</head>
+<body>
+    <h1>Enter Team Details</h1>
+    <form method="post">
+        <div id="games-container">
+            <div class="game-container" id="game-1">
+                <h3>Game 1</h3>
+                <div class="team-box" id="team1-box-game1">
+                    <h4>Team 1</h4>
+                </div>
+                <div class="team-box" id="team2-box-game1">
+                    <h4>Team 2</h4>
+                </div>
+                <div>
+                    <label>Team 1 Score: <input type="number" name="team1_score" required></label>
+                    <label>Team 2 Score: <input type="number" name="team2_score" required></label>
+                </div>
+            </div>
+            <h2>Available Players</h2>
+        <div class="player-list" id="player-list-game1">
+            {% for player, rating in player_rankings.items() %}
+            <div class="player" id="player-{{ loop.index }}">
+                {{ player }} ({{ rating }})
+                <div class="add-buttons">
+                    <button class="button" type="button" onclick="addToTeam('game1', 'team1', 'player-{{ loop.index }}')">Add to Team 1</button>
+                    <button class="button" type="button" onclick="addToTeam('game1', 'team2', 'player-{{ loop.index }}')">Add to Team 2</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        </div>
+        <button type="button" onclick="addGame()">Add Another Game</button>
+        
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>

@@ -11,9 +11,9 @@ class EloRatingSystem:
         self.game_results = []
 
     def load_initial_ratings(self, ratings_file):
-        """Load initial player ratings from an Excel file."""
-        ratings_df = pd.read_excel(ratings_file, index_col=0).transpose()
-        for player, rating in ratings_df.items():
+        """Load initial player ratings from a CSV file."""
+        ratings_df = pd.read_csv(ratings_file, index_col=0)
+        for player, rating in ratings_df.iterrows():
             self.player_ratings[player] = rating.values[0]
         print("Loaded initial player ratings.")
 
@@ -53,56 +53,61 @@ class EloRatingSystem:
             'Rating_Change': rating_change
         })
 
-    def process_games(self, input_file, output_file):
-        """Process games from an Excel file and update ratings."""
-        # Read input file in column format
-        df = pd.read_excel(input_file)
-
-        for index in range(len(df)):
+    def input_games(self, games):
+        """Process games provided as a list of dictionaries."""
+        for index, game in enumerate(games):
             # Parse team players
-            team1 = [p.strip() for p in df['Team1'][index].split(',')]
-            team2 = [p.strip() for p in df['Team2'][index].split(',')]
-            
+            team1 = [p.strip() for p in game['Team1']]
+            team2 = [p.strip() for p in game['Team2']]
+
             # Get scores
-            score1 = df['Score1'][index]
-            score2 = df['Score2'][index]          
+            score1 = game['Score1']
+            score2 = game['Score2']
+
             # Update ratings
             self.update_ratings(team1, team2, score1, score2)
             print(f"Processed Game {index + 1}: Team1={team1}, Team2={team2}, Score1={score1}, Score2={score2}")
-        
-        # Save updated ratings to file
-        self.save_ratings(output_file)
 
     def save_game_results(self, output_file):
-        """Save detailed game results to an Excel file, appending if the file exists."""
+        """Save detailed game results to a CSV file, appending if the file exists."""
         game_results_df = pd.DataFrame(self.game_results)
         if os.path.exists(output_file):
             # Read the existing file and append
-            existing_df = pd.read_excel(output_file)
+            existing_df = pd.read_csv(output_file)
             game_results_df = pd.concat([existing_df, game_results_df], ignore_index=True)
             print("Appending to existing game results file.")
         else:
             print("Creating new game results file.")
-        game_results_df.to_excel(output_file, index=False)
+        game_results_df.to_csv(output_file, index=False)
         print(f"Game results saved to {output_file}")
 
     def save_ratings(self, output_file):
-        """Save player ELO scores to an Excel file."""
+        """Save player ELO scores to a CSV file."""
         ratings_df = pd.DataFrame(self.player_ratings.items(), columns=['Player', 'Rating'])
         print(ratings_df.head())
 
-        ratings_df.to_excel(output_file, index=False)
+        ratings_df.to_csv(output_file, index=False)
         print(f"Player ELO scores saved to {output_file}")
+    
+    def return_ratings(self):
+        rounded_ratings = {player: round(rating) for player, rating in self.player_ratings.items()}
+        return rounded_ratings
 
 # Example usage
 if __name__ == "__main__":
-    input_file = "game.xlsx"  # Input Excel file path
-    ratings_input_file = "elo.xlsx"  # Input Excel file for initial ratings
-    ratings_output_file = "elo.xlsx"  # Output file path for ratings
-    game_results_output_file = "game_results_output.xlsx"  # Output file for game results
+    ratings_input_file = "elo.csv"  # Input CSV file for initial ratings
+    ratings_output_file = "elo.csv"  # Output file path for ratings
+    game_results_output_file = "game_results_output.csv"  # Output file for game results
+
+    # Example games input
+    games = [
+        {'Team1': ['Alice', 'Bob'], 'Team2': ['Charlie', 'Dave'], 'Score1': 1, 'Score2': 0},
+        {'Team1': ['Eve', 'Frank'], 'Team2': ['Grace', 'Heidi'], 'Score1': 0, 'Score2': 1},
+        {'Team1': ['Alice', 'Eve'], 'Team2': ['Charlie', 'Grace'], 'Score1': 0.5, 'Score2': 0.5},
+    ]
 
     elo_system = EloRatingSystem()
     elo_system.load_initial_ratings(ratings_input_file)
-    elo_system.process_games(input_file, ratings_output_file)
+    elo_system.input_games(games)
     elo_system.save_game_results(game_results_output_file)
-    elo_system.save_ratings("elo.xlsx")
+    elo_system.save_ratings(ratings_output_file)
