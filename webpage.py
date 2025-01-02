@@ -57,11 +57,14 @@ def team_input():
 
     if request.method == 'POST':
         games = []
-        for i in range(len(request.form.getlist('team1_players'))):
-            team1_players = request.form.getlist('team1_players')[i]
-            team2_players = request.form.getlist('team2_players')[i]
-            team1_score = request.form.getlist('team1_score')[i]
-            team2_score = request.form.getlist('team2_score')[i]
+        
+        # print the form data
+        
+        for i in range(len(request.form.getlist(f'team1_players[]'))):
+            team1_players = request.form.getlist(f'team1_players[]')[i]
+            team2_players = request.form.getlist(f'team2_players[]')[i]
+            team1_score = request.form.getlist(f'team1_score[]')[i]
+            team2_score = request.form.getlist(f'team2_score[]')[i]
 
 
             games.append({
@@ -70,7 +73,7 @@ def team_input():
                 'Score1': int(team1_score),
                 'Score2': int(team2_score)
             })
-
+        print(games)
         rankings.input_games(games)
         rankings.save_game_results('elo_calc/game_results.csv')
         rankings.save_ratings('elo_calc/player_ratings.csv')

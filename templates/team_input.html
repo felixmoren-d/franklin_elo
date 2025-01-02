@@ -27,103 +27,94 @@
         let gameCounter = 1;
 
         // Add a new game section
-        // Add a new game section
-let teamCounter = 2; // Start after "Team 2"
+        function addGame() {
+            const gamesContainer = document.getElementById('games-container');
+            gameCounter++;
 
-// Add a new game section
-function addGame() {
-    const gamesContainer = document.getElementById('games-container');
-    gameCounter++;
-    teamCounter += 2; // Increment by 2 for each new game
-
-    const gameDiv = document.createElement('div');
-    gameDiv.id = `game-${gameCounter}`;
-    gameDiv.className = 'game-container';
-    gameDiv.innerHTML = `
-        <h3>Game ${gameCounter}</h3>
-        <div class="team-box" id="team${teamCounter - 1}-box-game${gameCounter}">
-            <h4>Team ${teamCounter - 1}</h4>
-        </div>
-        <div class="team-box" id="team${teamCounter}-box-game${gameCounter}">
-            <h4>Team ${teamCounter}</h4>
-        </div>
-        <div>
-            <label>Team ${teamCounter - 1} Score: <input type="number" name="team${teamCounter - 1}_score" required></label>
-            <label>Team ${teamCounter} Score: <input type="number" name="team${teamCounter}_score" required></label>
-        </div>
-        <h2>Available Players</h2>
-        <div class="player-list" id="player-list-game${gameCounter}">
-            {% for player, rating in player_rankings.items() %}
-            <div class="player" id="player-${gameCounter}-{{ loop.index }}">
-                {{ player }} ({{ rating }})
-                <div class="add-buttons">
-                    <button class="button" type="button" onclick="addToTeam('game${gameCounter}', 'team${teamCounter - 1}', 'player-${gameCounter}-{{ loop.index }}')">Add to Team ${teamCounter - 1}</button>
-                    <button class="button" type="button" onclick="addToTeam('game${gameCounter}', 'team${teamCounter}', 'player-${gameCounter}-{{ loop.index }}')">Add to Team ${teamCounter}</button>
+            const gameDiv = document.createElement('div');
+            gameDiv.id = `game-${gameCounter}`;
+            gameDiv.className = 'game-container';
+            gameDiv.innerHTML = `
+                <h3>Game ${gameCounter}</h3>
+                <div class="team-box" id="team1-box-game${gameCounter}">
+                    <h4>Team 1</h4>
                 </div>
-            </div>
-            {% endfor %}
-        </div>
-    `;
-    gamesContainer.appendChild(gameDiv);
-}
-
-
-
-// Add player to a team
-function addToTeam(gameId, team, playerId) {
-    const teamBox = document.getElementById(`${team}-box-${gameId}`);
-    const player = document.getElementById(playerId);
-
-    if (player) {
-        const clonedPlayer = player.cloneNode(true);
-        clonedPlayer.id = `in-${gameId}-${team}-${playerId}`;
-        clonedPlayer.querySelector('.add-buttons').innerHTML = `
-            <button class="button" type="button" onclick="removeFromTeam('${gameId}', '${team}', '${playerId}')">Remove</button>`;
-        teamBox.appendChild(clonedPlayer);
-        player.remove();
-    }
-}
-
-// Remove player from a team
-
-
+                <div class="team-box" id="team2-box-game${gameCounter}">
+                    <h4>Team 2</h4>
+                </div>
+                <input type="hidden" name="team1_players[]" id="team1-players-game${gameCounter}">
+                <input type="hidden" name="team2_players[]" id="team2-players-game${gameCounter}">
+                <div>
+                    <label>Team 1 Score: <input type="number" name="team1_score[]" required></label>
+                    <label>Team 2 Score: <input type="number" name="team2_score[]" required></label>
+                </div>
+                <h2>Available Players</h2>
+                <div class="player-list" id="player-list-game${gameCounter}">
+                    {% for player, rating in player_rankings.items() %}
+                    <div class="player" id="player-game${gameCounter}-{{ loop.index }}">
+                        {{ player }} ({{ rating }})
+                        <div class="add-buttons">
+                            <button class="button" type="button" onclick="addToTeam('game${gameCounter}', 'team1', 'player-game${gameCounter}-{{ loop.index }}')">Add to Team 1</button>
+                            <button class="button" type="button" onclick="addToTeam('game${gameCounter}', 'team2', 'player-game${gameCounter}-{{ loop.index }}')">Add to Team 2</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            `;
+            gamesContainer.appendChild(gameDiv);
+        }
 
         // Add player to a team
         function addToTeam(gameId, team, playerId) {
-    const teamBox = document.getElementById(`${team}-box-${gameId}`);
-    const player = document.getElementById(playerId);
+            const teamBox = document.getElementById(`${team}-box-${gameId}`);
+            const hiddenInput = document.getElementById(`${team}-players-${gameId}`);
+            const player = document.getElementById(playerId);
 
-    if (player) {
-        const clonedPlayer = player.cloneNode(true);
-        clonedPlayer.id = `in-${gameId}-${team}-${playerId}`;
-        clonedPlayer.querySelector('.add-buttons').innerHTML = `
-            <button class="button" type="button" onclick="removeFromTeam('${gameId}', '${team}', '${playerId}')">Remove</button>`;
-        teamBox.appendChild(clonedPlayer);
-        player.remove();
-    }
-}
+            if (player) {
+                const clonedPlayer = player.cloneNode(true);
+                clonedPlayer.id = `in-${gameId}-${team}-${playerId}`;
+                clonedPlayer.querySelector('.add-buttons').innerHTML = `
+                    <button class="button" type="button" onclick="removeFromTeam('${gameId}', '${team}', '${playerId}')">Remove</button>`;
+                teamBox.appendChild(clonedPlayer);
 
-function removeFromTeam(gameId, team, playerId) {
-    const player = document.getElementById(`in-${gameId}-${team}-${playerId}`);
-    console.log(`${gameId}`)
-    const playerList = document.getElementById(`player-list-${gameId}`);
+                // Update hidden input
+                const currentPlayers = hiddenInput.value ? hiddenInput.value.split(',') : [];
+                console.log(player)
+                playerName = player.textContent.split('(')[0].trim();
+                currentPlayers.push(playerName);
+                console.log(currentPlayers)
+                hiddenInput.value = currentPlayers.join(',');
+                
 
-    if (player) {
-        const clonedPlayer = player.cloneNode(true);
-        clonedPlayer.id = playerId;
-        clonedPlayer.querySelector('.add-buttons').innerHTML = `
-            <button class="button" type="button" onclick="addToTeam('${gameId}', 'team1', '${playerId}')">Add to Team 1</button>
-            <button class="button" type="button" onclick="addToTeam('${gameId}', 'team2', '${playerId}')">Add to Team 2</button>`;
-        playerList.appendChild(clonedPlayer);
-        player.remove();
-    }
-}
+                // Remove player from available list
+                player.remove();
+            }
+        }
 
-    
-</script>
+        // Remove player from a team
+        function removeFromTeam(gameId, team, playerId) {
+            const player = document.getElementById(`in-${gameId}-${team}-${playerId}`);
+            const hiddenInput = document.getElementById(`${team}-players-${gameId}`);
+            const playerList = document.getElementById(`player-list-${gameId}`);
 
+            if (player) {
+                const clonedPlayer = player.cloneNode(true);
+                clonedPlayer.id = playerId;
+                clonedPlayer.querySelector('.add-buttons').innerHTML = `
+                    <button class="button" type="button" onclick="addToTeam('${gameId}', 'team1', '${playerId}')">Add to Team 1</button>
+                    <button class="button" type="button" onclick="addToTeam('${gameId}', 'team2', '${playerId}')">Add to Team 2</button>`;
+                playerList.appendChild(clonedPlayer);
 
+                // Update hidden input
+                playerName = player.textContent.split('(')[0].trim();
+                const currentPlayers = hiddenInput.value.split(',').filter(p => p !== playerName);
+                hiddenInput.value = currentPlayers.join(',');
 
+                // Remove player from team
+                player.remove();
+            }
+        }
+    </script>
 </head>
 <body>
     <h1>Enter Team Details</h1>
@@ -137,18 +128,20 @@ function removeFromTeam(gameId, team, playerId) {
                 <div class="team-box" id="team2-box-game1">
                     <h4>Team 2</h4>
                 </div>
+                <input type="hidden" name="team1_players[]" id="team1-players-game1">
+                <input type="hidden" name="team2_players[]" id="team2-players-game1">
                 <div>
-                    <label>Team 1 Score: <input type="number" name="team1_score" required></label>
-                    <label>Team 2 Score: <input type="number" name="team2_score" required></label>
+                    <label>Team 1 Score: <input type="number" name="team1_score[]" required></label>
+                    <label>Team 2 Score: <input type="number" name="team2_score[]" required></label>
                 </div>
                 <h2>Available Players</h2>
                 <div class="player-list" id="player-list-game1">
                     {% for player, rating in player_rankings.items() %}
-                    <div class="player" id="player-{{ loop.index }}">
+                    <div class="player" id="player-game1-{{ loop.index }}">
                         {{ player }} ({{ rating }})
                         <div class="add-buttons">
-                            <button class="button" type="button" onclick="addToTeam('game1', 'team1', 'player-{{ loop.index }}')">Add to Team 1</button>
-                            <button class="button" type="button" onclick="addToTeam('game1', 'team2', 'player-{{ loop.index }}')">Add to Team 2</button>
+                            <button class="button" type="button" onclick="addToTeam('game1', 'team1', 'player-game1-{{ loop.index }}')">Add to Team 1</button>
+                            <button class="button" type="button" onclick="addToTeam('game1', 'team2', 'player-game1-{{ loop.index }}')">Add to Team 2</button>
                         </div>
                     </div>
                     {% endfor %}
@@ -158,7 +151,6 @@ function removeFromTeam(gameId, team, playerId) {
         <button type="button" onclick="addGame()">Add Another Game</button>
         <button type="submit">Submit</button>
         <a href="{{ url_for('add_players') }}">Add New Players</a>
-        
+    </form>
 </body>
-
 </html>
